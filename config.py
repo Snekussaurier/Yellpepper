@@ -1,5 +1,5 @@
-# config.py
 import yaml
+import os
 
 
 class Config:
@@ -9,10 +9,13 @@ class Config:
 
     def read_config(self):
         with open(self.config_file, 'r') as file:
-            return yaml.safe_load(file)
+            config_content = file.read()
+            # Replace placeholders with environment variables
+            config_content = os.path.expandvars(config_content)
+            return yaml.safe_load(config_content)
 
     def get_bot_token(self):
-        return self.config['TOKEN']
+        return self.config['DISCORD_BOT_TOKEN']
 
     def get_opus_location(self):
         return self.config['OPUS_LOCATION']
