@@ -20,13 +20,6 @@ class ElevenlabsWrapper:
             output_format="mp3_44100_64",
             text=text,
             model_id="eleven_multilingual_v2",
-            # use the turbo model for low latency, for other languages use the `eleven_multilingual_v2`
-            voice_settings=VoiceSettings(
-                stability=0.35,
-                similarity_boost=0.75,
-                style=0.35,
-                use_speaker_boost=False,
-            ),
         )
 
         # Generating a unique file name for the output MP3 file
