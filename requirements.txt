@@ -1,0 +1,7 @@
+PyYAML
+tiktoken
+openai
+rich
+elevenlabs
+py-cord
+py-cord[voice]
