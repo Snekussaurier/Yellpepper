@@ -1,6 +1,7 @@
 # Yellpepper - A DougDoug inspired Discord Bot
 
-## Prelude
+<img style="float: right;" src="yellpepper.png" height="180px" alt="Yellpepper-Icon">
+
 Yellpepper is a Discord bot inspired by the Babagaboosh app created by DougDoug.
 
 Inspired by this concept, Yellpepper aims to bring similar interactive and entertaining features of AI to Discord communities, enabling users to engage in conversations, ask questions, and receive amusing responses based on predefined character profiles and AI interactions.
