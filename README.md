@@ -1,6 +1,6 @@
 # Yellpepper - A DougDoug inspired Discord Bot
 
-<img style="float: right;" src="yellpepper.png" height="180px" alt="Yellpepper-Icon">
+<img style="float: right;" src="yellpepper.png" height="175px" alt="Yellpepper-Icon">
 
 Yellpepper is a Discord bot inspired by the Babagaboosh app created by DougDoug.
 
@@ -66,3 +66,8 @@ python3 bot.py
 
 ## License
 This project is licensed under the [MIT License](LICENSE).
+
+## Attribution
+Images for the logo from [Freepik](www.freepik.com)
+- [Bell-pepper](https://www.freepik.com/free-psd/sweet-pepper-fruit-isolated-transparent-background_88372150.htm#fromView=image_search_similar&page=1&position=49&uuid=13244870-f2f1-4d3f-9e99-e921099c3439)
+- [Googly Eyes](https://www.freepik.com/free-vector/pack-decorative-cartoon-eyes_1061887.htm#fromView=search&page=1&position=24&uuid=4dc6a68e-690e-4023-a2c3-492351276328)
