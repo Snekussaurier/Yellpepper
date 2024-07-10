@@ -58,7 +58,7 @@ async def join(ctx):
     channel = ctx.author.voice.channel
 
     # Join the voice channel
-    if voice_client is None:
+    if voice_client is None or voice_client is not ctx.author.voice.channel:
         voice_client = await channel.connect()
 
     await ctx.respond(f'Joined {channel.name}.')
@@ -69,10 +69,12 @@ async def leave(ctx):
     """
     Command to leave the current voice channel.
     """
+    global voice_client
+
     # Check if the bot is in a voice channel
-    if ctx.voice_client is not None:
+    if voice_client is not None:
         # Leave the voice channel
-        await ctx.voice_client.disconnect()
+        await voice_client.disconnect()
         await ctx.send('Left the voice channel.')
     else:
         await ctx.send('I am not currently in a voice channel.')
@@ -104,12 +106,14 @@ async def ask_with_text(ctx, profile: discord.Option(str, "Choose a profile", ch
     if profile not in profiles:
         return await ctx.send(f"Profile {profile} does not exist. Available profiles: {', '.join(profiles.keys())}")
 
+    if ctx.author.voice is None:
+        await ctx.respond('You need to be in a voice channel to use this command.')
+        return
+
     await ctx.response.defer()
 
     # Join the voice channel if not already connected
-    if voice_client is None:
-        channel = ctx.author.voice.channel
-        voice_client = await channel.connect()
+    await join_new_channel(ctx)
 
     # Check if a request is already in progress
     if not can_ask:
@@ -150,10 +154,12 @@ async def ask_with_voice(ctx, profile: discord.Option(str, "Choose a profile", c
     global voice_client
     global can_ask
 
+    if ctx.author.voice is None:
+        await ctx.respond('You need to be in a voice channel to use this command.')
+        return
+
     # Join the voice channel if not already connected
-    if voice_client is None:
-        channel = ctx.author.voice.channel
-        voice_client = await channel.connect()
+    await join_new_channel(ctx)
 
     # Check if a request is already in progress
     if not can_ask:
@@ -169,6 +175,14 @@ async def ask_with_voice(ctx, profile: discord.Option(str, "Choose a profile", c
         profile  # The chosen profile for the voice interaction.
     )
     await ctx.respond("Started recording!")
+
+
+async def join_new_channel(ctx):
+    global voice_client
+    if voice_client is None or voice_client is not ctx.author.voice.channel:
+        channel = ctx.author.voice.channel
+        await voice_client.disconnect()
+        voice_client = await channel.connect()
 
 
 async def once_done(sink: discord.sinks, ctx, profile: str):
