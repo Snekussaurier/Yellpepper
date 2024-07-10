@@ -1,10 +1,11 @@
 import os
 import discord
-from discord import VoiceClient, Bot
+from discord import VoiceClient, Bot, Embed
 import character_profile
 from config import Config
 from elevenlabs_wrapper import ElevenlabsWrapper
 from openai_wrapper import OpenAiWrapper, speech_to_text_whisper
+from response_modal import ResponseModal
 
 # Initialize Bot
 bot: Bot = discord.Bot()
@@ -104,6 +105,8 @@ async def ask_with_text(ctx, profile: discord.Option(str, "Choose a profile", ch
     if profile not in profiles:
         return await ctx.send(f"Profile {profile} does not exist. Available profiles: {', '.join(profiles.keys())}")
 
+    await ctx.response.defer()
+
     # Join the voice channel if not already connected
     if voice_client is None:
         channel = ctx.author.voice.channel
@@ -125,7 +128,7 @@ async def ask_with_text(ctx, profile: discord.Option(str, "Choose a profile", ch
     answer = openai_wrapper.chat_with_history(text)
 
     # Respond in text channel
-    await ctx.respond(answer)
+    await ctx.followup.send("", embed=request_embed(text, answer))
 
     # Play the generated audio
     await play_audio(answer, profile)
@@ -163,17 +166,19 @@ async def ask_with_voice(ctx, profile: discord.Option(str, "Choose a profile", c
     voice_client.start_recording(
         discord.sinks.MP3Sink(),  # The sink type to use.
         once_done,  # Callback function to execute once recording is done.
-        ctx.channel,  # The text channel to send the response to.
+        ctx,  # The text channel to send the response to.
         profile  # The chosen profile for the voice interaction.
     )
     await ctx.respond("Started recording!")
 
 
-async def once_done(sink: discord.sinks, channel: discord.TextChannel, profile: str):
+async def once_done(sink: discord.sinks, ctx, profile: str):
     """
     Callback function that runs once recording is done.
     """
-    file_path = ""
+    global current_profile
+
+    file_path: str = ""
     for user_id, audio in sink.audio_data.items():
         file_path = os.path.join(f"{user_id}.{sink.encoding}")
         with open(file_path, 'wb') as f:
@@ -184,16 +189,14 @@ async def once_done(sink: discord.sinks, channel: discord.TextChannel, profile: 
     # Remove recorded file
     os.remove(file_path) if os.path.exists(file_path) else None
 
-    await channel.send(
-        f"Finished recording. Received message: {question}")  # Send a message with the accumulated files.
-
     if current_profile != profiles[profile]:
         openai_wrapper.chat_history.clear()
         openai_wrapper.chat_history.append({"role": "system", "content": profiles[profile].first_system_message})
+        current_profile = profile
 
     answer: str = openai_wrapper.chat_with_history(question)
 
-    await channel.send(answer)
+    await ctx.followup.send("", embed=request_embed(question, answer))
 
     # Play the audio file
     await play_audio(answer, profile)
@@ -226,6 +229,17 @@ def cleanup_request(filepath: str):
     os.remove(filepath) if os.path.exists(filepath) else None
     # Set the can_ask flag to True
     can_ask = True
+
+
+def request_embed(prompt: str, answer: str) -> Embed:
+    global current_profile
+
+    embed: Embed = discord.Embed(color=discord.Colour.blurple())
+    embed.add_field(name="Prompt:", value=prompt, inline=False)
+    embed.add_field(name="Answer:", value=answer)
+    embed.set_author(name=current_profile)
+
+    return embed
 
 
 async def play_audio(answer: str, profile: str):
