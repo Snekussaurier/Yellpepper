@@ -5,7 +5,6 @@ import character_profile
 from config import Config
 from elevenlabs_wrapper import ElevenlabsWrapper
 from openai_wrapper import OpenAiWrapper, speech_to_text_whisper
-from response_modal import ResponseModal
 
 # Initialize Bot
 bot: Bot = discord.Bot()
